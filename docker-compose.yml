@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: prueba
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
+
+  customers-api:
+    build: 
+      context: ./customers-api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: prueba
+
+  orders-api:
+    build: 
+      context: ./orders-api
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3002"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: prueba
+      CUSTOMERS_API_BASE: http://customers-api:3001
+      SERVICE_TOKEN: SERVICE_TOKEN

@@ -1,0 +1,26 @@
+service: lambda-orchestrator
+frameworkVersion: '>=4.0.0 <5.0.0'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: dev
+  region: us-east-1
+  environment:
+    CUSTOMERS_API_BASE: http://localhost:3001
+    ORDERS_API_BASE: http://localhost:3004
+
+functions:
+  orchestrator:
+    handler: handler.orchestrator
+    events:
+      - http:
+          path: orchestrator
+          method: post
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3003
